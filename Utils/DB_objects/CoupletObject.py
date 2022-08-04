@@ -100,18 +100,24 @@ class CoupletObject(CommonObject):
     @classmethod
     def delete(cls, parcel):
         c_id = int(parcel.data["couplet_id"])
+        song_id = cls._exec_req(
+            f'SELECT sc.song_id '
+            f'FROM Song_Couplet sc '
+            f'WHERE sc.couplet_id = {c_id}'
+        )[0][0]
         del_req = (
             f'DELETE FROM Couplet '
             f'WHERE id = {c_id}'
         )
         cls._commit_req(del_req)
+
         del_req = (
             f'DELETE FROM Song_Couplet '
             f'WHERE couplet_id = {c_id}'
         )
         cls._commit_req(del_req)
 
-        return cls.get_parcel_with_song(parcel.data["song_id"], parcel.sender)
+        return cls.get_parcel_with_song(song_id, parcel.sender)
 
     @classmethod
     def get_parcel_with_song(cls, song_id, sender):
