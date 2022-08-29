@@ -36,14 +36,14 @@ class CoupletObject(CommonObject):
     @classmethod
     def edit(cls, parcel):
         couplet: dict = parcel.data['couplet']
-        couplet_text: str = "'{}'".format(
+        couplet_text: str = "{}".format(
             couplet["fullName"].replace("\'", r"\'")
         )
         request = (
             f'UPDATE Couplet '
             f'SET '
             f'name = "{couplet["mark"]}", '
-            f'text = {couplet_text} '
+            f'text = \'{couplet_text}\' '
             f'WHERE id = {int(couplet["id"])}'
         )
         cls._commit_req(request)
@@ -60,13 +60,13 @@ class CoupletObject(CommonObject):
         couplet = parcel.data['couplet']
         song_id = int(couplet['song_id'])
         insert_after_id = int(couplet["insert_after"])
-        couplet_text: str = "'{}'".format(
+        couplet_text: str = "{}".format(
             couplet["fullName"].replace("\'", r"\'")
         )
         if (c_i := couplet.get('id')) is None:
             cr_req = (
                 f'INSERT INTO Couplet (name, text)'
-                f'VALUES ("{couplet["mark"]}", "{couplet_text}")'
+                f'VALUES ("{couplet["mark"]}", \'{couplet_text}\')'
             )
             couplet_id = cls._commit_req(cr_req)
         else:
