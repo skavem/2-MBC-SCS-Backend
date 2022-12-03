@@ -1,6 +1,8 @@
 import asyncio
 import websockets
 import json
+import logging
+import sys
 
 from Utils.WSUtils.Parcel import handleParcel
 from Utils.WSUtils.WSStateSingletone import WSStateSingletone
@@ -16,16 +18,21 @@ def message_to_json(message) -> str:
 
 async def message_handler(websocket):
     async for parcel in websocket:
-        print('[InParcel]: ', parcel)
+        logging.info(f'[InParcel]: {parcel}')
 
-        outParcel = handleParcel(parcel, sender=websocket)
-        print(str(outParcel)[:100])
+        try:
+            outParcel = handleParcel(parcel, sender=websocket)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+
+        logging.info(f'{str(outParcel)[:100]}')
 
         websockets.broadcast(outParcel.destination, outParcel.to_json())
 
 
 async def handler(websocket):
-    print('[Info]: Client connected')
+    logging.info('[Info]: Client connected')
+
     try:
         await message_handler(websocket)
     except websockets.exceptions.ConnectionClosed:
@@ -33,9 +40,9 @@ async def handler(websocket):
         WS_STATE.remove_recv(websocket)
         try:
             WS_STATE.remove_trans(websocket)
-            print("[Info]: Transmitter disconnected")
+            logging.info('[Info]: Transmitter disconnected')
         except KeyError:
-            print("[Info]: Reciever disconnected")
+            logging.info('[Info]: Reciever disconnected')
         return
 
 
@@ -44,6 +51,14 @@ async def main():
         await asyncio.Future()
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        handlers=[
+            logging.FileHandler('app.log'),
+            logging.StreamHandler(sys.stdout)
+        ],
+        format='%(asctime)s - %(message)s',
+        level=logging.INFO,
+    )
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

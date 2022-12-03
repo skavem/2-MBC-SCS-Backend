@@ -9,15 +9,15 @@ class SongObject(CommonObject):
     def get(cls, parcel):
         from Utils.WSUtils.Parcel import OutParcel
         request = 'SELECT s.id, s.name, s.number FROM Song s'
-        books = cls._exec_req(request)
+        songs = cls._exec_req(request)
 
         ret_dict = {
             'all': [
                 {
-                    'id': book[0],
-                    'fullName': book[1],
-                    'mark': book[2]
-                } for book in books
+                    'id': song[0],
+                    'fullName': song[1],
+                    'mark': song[2]
+                } for song in songs
             ]
         }
 
